@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { NavItem } from "~/types";
+
 const colorMode = useColorMode();
 const isDark = computed({
   get() {
@@ -9,91 +11,93 @@ const isDark = computed({
   },
 });
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon?: string;
-  active?: boolean;
-  // content?: string;
-  collections?: NavItem[];
-}
+const { getBookDetails } = useMyFirebase();
+const links = useLinks();
 
-const navItems: NavItem[] = [
-  {
-    href: "#",
-    label: "Collection A",
-    icon: "i-heroicons-folder-20-solid",
-    collections: [
-      { label: "Collection 1", icon: "", href: "#" },
-      { label: "Collection 2", icon: "", href: "#" },
-      { label: "Collection 3", icon: "", href: "#" },
-    ],
-    active: true,
-  },
-  {
-    href: "#",
-    label: "Collection B",
-    icon: "i-heroicons-folder-20-solid",
-    collections: [
-      { label: "Collection 1", icon: "", href: "#" },
-      { label: "Collection 2", icon: "", href: "#" },
-      { label: "Collection 3", icon: "", href: "#" },
+const data = (await getBookDetails()) as NavItem[];
+links.value = data;
 
-      {
-        href: "#",
-        label: "Collection B1",
-        icon: "i-heroicons-folder-20-solid",
-        collections: [
-          {
-            label: "Collection 1",
-            icon: "",
-            href: "#",
-          },
-          {
-            label: "Collection 2A",
-            icon: "i-heroicons-folder-20-solid",
+// const navItems: NavItem[] = [
+//   {
+//     href: "#",
+//     label: "Collection A",
+//     icon: "i-heroicons-folder-20-solid",
+//     collections: [
+//       { label: "Collection 1", icon: "", href: "#" },
+//       { label: "Collection 2", icon: "", href: "#" },
+//       { label: "Collection 3", icon: "", href: "#" },
+//     ],
+//     active: true,
+//   },
+//   {
+//     href: "#",
+//     label: "Collection B",
+//     icon: "i-heroicons-folder-20-solid",
+//     collections: [
+//       { label: "Collection 1", icon: "", href: "#" },
+//       { label: "Collection 2", icon: "", href: "#" },
+//       { label: "Collection 3", icon: "", href: "#" },
 
-            href: "#",
-            collections: [
-              {
-                label: "Collection 1",
-                icon: "",
-                href: "#",
-              },
-              {
-                label: "Collection 2",
-                icon: "",
-                href: "#",
-              },
-              {
-                label: "Collection 3",
-                icon: "",
-                href: "#",
-              },
-            ],
-          },
-          {
-            label: "Collection 3",
-            icon: "",
-            href: "#",
-          },
-        ],
-        active: true,
-      },
-    ],
-    active: true,
-  },
+//       {
+//         href: "#",
+//         label: "Collection B1",
+//         icon: "i-heroicons-folder-20-solid",
+//         collections: [
+//           {
+//             label: "Collection 1",
+//             icon: "",
+//             href: "#",
+//           },
+//           {
+//             label: "Collection 2A",
+//             icon: "i-heroicons-folder-20-solid",
 
-  {
-    href: "#",
-    label: "Collection C",
-    icon: "i-heroicons-folder-20-solid",
-  },
-];
+//             href: "#",
+//             collections: [
+//               {
+//                 label: "Collection 1",
+//                 icon: "",
+//                 href: "#",
+//               },
+//               {
+//                 label: "Collection 2",
+//                 icon: "",
+//                 href: "#",
+//               },
+//               {
+//                 label: "Collection 3",
+//                 icon: "",
+//                 href: "#",
+//               },
+//             ],
+//           },
+//           {
+//             label: "Collection 3",
+//             icon: "",
+//             href: "#",
+//           },
+//         ],
+//         active: true,
+//       },
+//     ],
+//     active: true,
+//   },
+
+//   {
+//     href: "#",
+//     label: "Collection C",
+//     icon: "i-heroicons-folder-20-solid",
+//   },
+// ];
+
+// const links = useState<NavItem[]>('links')
+
 </script>
 <template>
-  <div>
-    <nav>
+  <div
+    class="border-r dark:border-white border-gray-900 h-screen overflow-auto px-4"
+  >
+    <nav class="space-y-4">
       <ClientOnly>
         <UButton
           :icon="
@@ -108,8 +112,14 @@ const navItems: NavItem[] = [
         </template>
       </ClientOnly>
       <br />
-
-      <NavItem :navItems="navItems" />
+      <UButton
+        class="w-full"
+        to="/"
+        :ui="{ rounded: 'rounded-none', padding: { sm: 'p-[10px]' } }"
+      >
+        <span class="truncate">Home</span>
+      </UButton>
+      <NavItem :navItems="links" />
     </nav>
   </div>
 </template>

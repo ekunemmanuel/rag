@@ -15,11 +15,13 @@
     "firebase-admin": "^11.11.1",
     "nuxt": "^3.10.3",
     "pinia": "^2.1.7",
+    "uuid": "^9.0.1",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@pinia/nuxt": "^0.5.1",
+    "@types/uuid": "^9.0.8",
     "@vueuse/core": "^10.8.0",
     "nuxt-vuefire": "^1.0.2"
   }

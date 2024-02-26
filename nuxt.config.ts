@@ -14,4 +14,7 @@ export default defineNuxtConfig({
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     },
   },
+  imports:{
+    // dirs: ['types']
+  }
 });

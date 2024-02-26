@@ -1,43 +1,89 @@
 <template>
-  <div class="grid place-items-center">
-    <div
+  <div class="grid place-items-center px-[10px]">
+    <UCard
+      :ui="{
+        body: {
+          background: 'w-full',
+        },
+      }"
       ref="dropZoneRef"
-      class="size-[500px] bg-primary-600 border-dashed border grid place-items-center"
+      class="max-w-[600px] rounded-lg w-full min-h-[200px] border-dashed border dark:border-white border-gray-900 grid place-items-center"
     >
-      Drop files here
-      {{ isOverDropZone }}
-      <div>
-        <p v-for="(item, index) in files" :key="index">
-          {{ item.name }}
-          {{ item.size }}
-        </p>
+      <div
+        class="flex flex-col gap-[10px] text-center justify-center items-center w-full"
+      >
+        <UIcon name="i-mdi:cloud-upload" class="text-[40px]" />
+        <div class="font-semibold">Drag & Drop PDF Files Here</div>
+        <UDivider class="w-full" label="OR" />
+        <UButton @click="open()">Choose Files</UButton>
       </div>
-    </div>
-    <button type="button" @click="open()">Choose files</button>
-    <button type="button" :disabled="!incomingBrowserFiles" @click="reset()">Reset</button>
-    <template v-if="incomingBrowserFiles">
-      <p>
-        You have selected:
-        <b>{{ `${incomingBrowserFiles.length} ${incomingBrowserFiles.length === 1 ? "file" : "files"}` }}</b>
-      </p>
-      <li v-for="file of incomingBrowserFiles" :key="file.name">
-        {{ file.name }}
-      </li>
-    </template>
+    </UCard>
   </div>
+
+  <UModal v-if="files" v-model="isOpen" prevent-close>
+    <UCard
+      :ui="{
+        ring: '',
+        divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h3
+            class="text-base font-semibold leading-6 text-gray-900 dark:text-white"
+          >
+            Upload
+            {{ `${files.length} ${files.length === 1 ? "file" : "files"}` }}
+          </h3>
+          <UButton
+            color="gray"
+            variant="ghost"
+            icon="i-material-symbols:close-small"
+            class="-my-1"
+            @click="clearList"
+          />
+        </div>
+      </template>
+
+      <div>
+        <UInput
+          placeholder="Collection Name"
+          v-if="isMultiple"
+          v-model="collectionName"
+        />
+        <div class="mt-[10px]">
+          <p v-for="(item, index) in files" :key="index">
+            {{ index + 1 }}. {{ item.name }}
+
+            <!--- {{ item.size }} -->
+          </p>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-[20px]">
+          <UButton @click="send()">Upload</UButton>
+          <UButton variant="soft" :disabled="!files" @click="clean()">
+            Reset
+          </UButton>
+        </div>
+      </template>
+    </UCard>
+  </UModal>
 </template>
 
 <script lang="ts" setup>
 const dropZoneRef = ref<HTMLDivElement>();
+const { clearList, collectionName, files, isMultiple, isOpen, upload } =
+  useAddBookDetails();
 
-function onDrop(files: File[] | null) {
-  // called when files are dropped on zone
-  console.log(files);
+function onDrop() {
+  isOpen.value = true;
+  files.value = incomingDragFiles.value;
 }
 
-const { isOverDropZone, files: incomingFiles } = useDropZone(dropZoneRef, {
+const { files: incomingDragFiles } = useDropZone(dropZoneRef, {
   onDrop,
-  // specify the types of data to be received.
   dataTypes: ["application/pdf"],
 });
 
@@ -47,21 +93,23 @@ const {
   reset,
   onChange,
 } = useFileDialog({
-  accept: "application/pdf", // Set to accept only image files
+  accept: "application/pdf",
 });
 
-onChange((files) => {
-  /** do something with files */
+onChange(() => {
+  isOpen.value = true;
+  files.value = incomingBrowserFiles.value;
 });
 
-const files = ref<File[]>([]);
-watch([incomingFiles, incomingBrowserFiles], ([newFiles, f]) => {
-  if (!newFiles) return;
-  if (!f) return;
-  console.log(f);
-  
-  files.value = newFiles;
-});
+function clean() {
+  isOpen.value = false;
+  clearList();
+  reset();
+}
+
+function send() {
+  upload();
+}
 </script>
 
 <style scoped></style>

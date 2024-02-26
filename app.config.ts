@@ -1,7 +1,10 @@
 export default defineAppConfig({
     ui: {
       primary: 'contessa',
-      gray: 'cool'
+      gray: 'cool',
+      icons: {
+        dynamic: true
+      }
     }
   })
   

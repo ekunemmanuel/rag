@@ -1,4 +1,8 @@
+import type { NavItem } from "~/types";
+
 export default () => {
-  const myFiles: File[] = [];
-  return myFiles;
+  const links = ref<NavItem[]>([]);
+  console.log(links.value);
+  
+  return { links };
 };
