@@ -57,7 +57,9 @@
         {{ file.name }}
       </li>
     </template>
-  </div>
+    </UCard>
+  </UModal>
+
 </template>
 
 <script lang="ts" setup>
