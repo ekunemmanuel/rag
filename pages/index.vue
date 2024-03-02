@@ -63,10 +63,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useDropZone, useFileDialog } from '@vueuse/core';
-import { ref } from 'vue';
-
-
 const dropZoneRef = ref<HTMLDivElement>();
 const { clearList, collectionName, files, isMultiple, isOpen, upload, isThereFile, sending } =
   useBookDetails();
@@ -105,6 +101,16 @@ function clean() {
 function send() {
   upload()
 }
+
+useHead({
+  title: 'Home',
+  meta: [
+    {
+      name: "description",
+      content: "This is the home page",
+    },
+  ],
+});
 </script>
 
 <style scoped></style>
