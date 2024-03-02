@@ -13,7 +13,7 @@
         </p>
       </div>
     </div>
-    <button type="button" @click="open()">Choose files</button>
+    <!-- <button type="button" @click="open()">Choose files</button>
     <button type="button" :disabled="!incomingBrowserFiles" @click="reset()">Reset</button>
     <template v-if="incomingBrowserFiles">
       <p>
@@ -23,7 +23,7 @@
       <li v-for="file of incomingBrowserFiles" :key="file.name">
         {{ file.name }}
       </li>
-    </template>
+    </template> -->
   </div>
 </template>
 
