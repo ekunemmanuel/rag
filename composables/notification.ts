@@ -5,7 +5,7 @@ export const useNotification = () => {
     title,
     description,
   }: {
-    id: string;
+    id?: string;
     title: string;
     description: string;
   }) {

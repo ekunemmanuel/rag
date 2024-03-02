@@ -2,31 +2,33 @@
   <UAccordion
     :items="navItems"
     :ui="{
-      wrapper: 'flex flex-col w-full',
+      wrapper: 'flex flex-col w-full space-y-[10px]',
       item: {
-        padding: 'pt-0 pb-0',
+        padding: 'pt-[0px] pb-0',
       },
     }"
   >
     <template #default="{ item, index, open }">
       <UButton
         v-if="!item.collections"
-        color="gray"
         variant="ghost"
-        :to="item.id"
-        exactActiveClass="bg-primary-900 dark:bg-primary-400"
-        activeClass="text-primary-600 dark:text-primary-400"
-        class=""
-        :ui="{ rounded: 'rounded-none', padding: { sm: 'p-[10px]' } }"
+        color="gray"
+        :to="`${item.id}`"
+        exactActiveClass="bg-primary-900 dark:bg-primary-400 ring-"
+        activeClass="text-primary-600 dark:text-primary-400 ring-2 ring-primary-600 dark:ring-primary-400"
+        class="duration-200 hover:dark:!bg-primary-950 hover:!bg-primary-50"
+        :ui="{ padding: { sm: 'p-[10px]' } }"
       >
         <span class="truncate">{{ item.label }}</span>
       </UButton>
       <UButton
         v-else
-        color="gray"
         variant="ghost"
-        class=""
-        :ui="{ rounded: 'rounded-none', padding: { sm: 'p-[10px]' } }"
+        color="gray"
+        class="hover:dark:!bg-primary-950 hover:!bg-primary-50"
+        exactActiveClass="bg-primary-900 dark:bg-primary-400 ring-"
+        activeClass="text-primary-600 dark:text-primary-400 ring-2 ring-primary-600 dark:ring-primary-400"
+        :ui="{ rounded: 'rounded-[10px]', padding: { sm: 'p-[5px]' } }"
       >
         <template #leading>
           <div class="size-6 flex items-center justify-center">
@@ -40,6 +42,7 @@
         </template>
 
         <span class="truncate"> {{ item.label }}</span>
+
 
         <template #trailing>
           <UIcon
@@ -77,7 +80,7 @@
       </UButton>
     </template>
     <template #item="{ item, index, open, close }">
-      <div v-if="item.collections" class="">
+      <div v-if="item.collections" class="space-y-[10px]">
         <NavItem :nav-items="item.collections" />
       </div>
     </template>
@@ -85,10 +88,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { NavItem } from "~/types";
+import type { BookDetails } from "~/types";
 
 const props = defineProps<{
-  navItems: NavItem[];
+  navItems: BookDetails[];
 }>();
 </script>
 

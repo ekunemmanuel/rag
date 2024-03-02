@@ -1,12 +1,22 @@
-export interface NavItem {
+import { type Timestamp } from "firebase/firestore";
+
+export interface BookDetails {
   id: string;
   href?: string;
   icon?: string;
   active?: boolean;
   label: string;
-  // content?: string;
-  collections?: NavItem[];
+  alias: string;
+  collections?: BookDetails[];
+  createdAt?: Timestamp;
 }
+export interface Message {
+  id: string;
+  role: string;
+  content: string;
+}
+
+export interface NavItem extends BookDetails {}
 
 // function upload() {
 //   if (files.value instanceof Array) {
