@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { BookDetails } from '~/types';
-
-const { getBookDetails } = useBookDetails()
+const { getBookDetails } = useBookDetails();
 
 const colorMode = useColorMode();
 const isDark = computed({
@@ -13,11 +11,13 @@ const isDark = computed({
   },
 });
 
-const links = useLinks()
+const links = useLinks();
+const largeScreen = useLargeScreen();
+const medScreen = useMediumScreen();
+const smallScreen = useSmallScreen();
 
-const data = await getBookDetails()
-links.value = data
-
+const data = await getBookDetails();
+links.value = data;
 
 // const navItems: BookDetails[] = [
 //   {
@@ -58,30 +58,49 @@ function toogleWidth() {
   toogle.value = !toogle.value;
 
   emits("width", toogle.value);
-
 }
-
 </script>
 
 <template>
-  <div class="border-r dark:border-white border-gray-900 h-screen overflow-auto p-[10px]">
+  <div
+    class="border-r dark:border-white border-gray-900 h-screen overflow-auto p-[10px]"
+  >
     <nav class="space-y-[10px]">
       <ClientOnly>
-        <UButton :icon="isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
-          " variant="ghost" aria-label="Theme" @click="isDark = !isDark" />
+        <UButton
+          :icon="
+            isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
+          "
+          variant="ghost"
+          aria-label="Theme"
+          @click="isDark = !isDark"
+        />
         <template #fallback>
           <div class="w-8 h-8" />
         </template>
       </ClientOnly>
       <br />
       <div class="flex justify-between gap-[10px] w-full">
-        <UButton v-if="!toogle" class="flex-1" to="/"
-          :ui="{ rounded: 'rounded-[5px]', padding: { sm: 'p-[5px] px-[10px]' } }">
+        <UButton
+          v-if="!toogle"
+          class="flex-1"
+          to="/"
+          :ui="{
+            rounded: 'rounded-[5px]',
+            padding: { sm: 'p-[5px] px-[10px]' },
+          }"
+        >
           <span class="truncate">Home</span>
         </UButton>
-        <UButton @click="toogleWidth"
-          :icon="!toogle ? 'i-material-symbols:arrow-back-ios-new-rounded' : 'i-material-symbols:arrow-forward-ios-rounded'"
-          variant="ghost" />
+        <UButton
+          @click="toogleWidth"
+          :icon="
+            !toogle
+              ? 'i-material-symbols:arrow-back-ios-new-rounded'
+              : 'i-material-symbols:arrow-forward-ios-rounded'
+          "
+          variant="ghost"
+        />
       </div>
       <NavItem v-if="!toogle" :navItems="links" />
     </nav>
