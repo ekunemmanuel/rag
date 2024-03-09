@@ -1,9 +1,9 @@
 <template>
   <div
-    class="w-full border-l dark:border-white border-gray-900 h-screen flex flex-col justify-between gap-[10px] py-[10px]"
+    class="w-full border-l dark:border-white border-gray-900 h-screen flex flex-col justify-between gap-[10px] py-[10px] dark:bg-[#121212] bg-white"
   >
-    <div class="overflow-auto chat-messages">
-      <div class="space-y-2 px-2 pb-2">
+    <div class="overflow-y-auto chat-messages">
+      <div class="space-y-4 px-2 pb-2">
         <div
           v-for="message in messages"
           :key="message.id"

@@ -17,6 +17,7 @@ const isSmallScreen = useMediaQuery("(max-width: 767px)");
 const largeScreen = useLargeScreen();
 const medScreen = useMediumScreen();
 const smallScreen = useSmallScreen();
+const toogleValue = useToogle()
 
 watch(
   [isLargeScreen, isMediumScreen, isSmallScreen],
@@ -24,6 +25,7 @@ watch(
     largeScreen.value = newLargeVal;
     smallScreen.value = newSmallVal;
     medScreen.value = newMedVal;
+    toogleValue.value = newSmallVal;
   },
   {
     immediate: true,

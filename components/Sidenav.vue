@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { getBookDetails } = useBookDetails();
-
 const colorMode = useColorMode();
 const isDark = computed({
   get() {
@@ -12,9 +11,7 @@ const isDark = computed({
 });
 
 const links = useLinks();
-const largeScreen = useLargeScreen();
-const medScreen = useMediumScreen();
-const smallScreen = useSmallScreen();
+const isSmallScreen = useSmallScreen();
 
 const data = await getBookDetails();
 links.value = data;
@@ -52,57 +49,89 @@ links.value = data;
 // links.value = navItems
 
 // i want to update the width of the sidenav when the button is clicked
-const emits = defineEmits(["width"]);
-const toogle = ref(false);
+const toogleValue = useToogle();
+const toogle = ref(toogleValue.value);
+
 function toogleWidth() {
   toogle.value = !toogle.value;
-
-  emits("width", toogle.value);
+  toogleValue.value = toogle.value
 }
+
+watch(toogleValue, (newVal) => {
+  toogle.value = newVal;
+});
+
+const elFooter = ref(null);
+const elHeader = ref(null);
+const { height: footerHeight } = useElementSize(elFooter);
+const { height: headerHeight } = useElementSize(elHeader);
+
+const newHeight = computed(() => {
+  return `h-[calc(100vh-${footerHeight.value + headerHeight.value}px)]`;
+});
 </script>
 
 <template>
   <div
-    class="border-r dark:border-white border-gray-900 h-screen overflow-auto p-[10px]"
+    class="border-r dark:border-white border-gray-900 overflow-y-auto flex flex-col z-50 dark:bg-[#121212] bg-white"
   >
-    <nav class="space-y-[10px]">
-      <ClientOnly>
-        <UButton
-          :icon="
-            isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
-          "
-          variant="ghost"
-          aria-label="Theme"
-          @click="isDark = !isDark"
-        />
-        <template #fallback>
-          <div class="w-8 h-8" />
-        </template>
-      </ClientOnly>
-      <br />
-      <div class="flex justify-between gap-[10px] w-full">
-        <UButton
-          v-if="!toogle"
-          class="flex-1"
-          to="/"
-          :ui="{
-            rounded: 'rounded-[5px]',
-            padding: { sm: 'p-[5px] px-[10px]' },
-          }"
-        >
-          <span class="truncate">Home</span>
-        </UButton>
-        <UButton
-          @click="toogleWidth"
-          :icon="
-            !toogle
-              ? 'i-material-symbols:arrow-back-ios-new-rounded'
-              : 'i-material-symbols:arrow-forward-ios-rounded'
-          "
-          variant="ghost"
-        />
+    <nav class="mb-auto">
+      <div ref="elHeader">
+        <div class="p-[10px] flex justify-between gap-[10px] w-full">
+          <UButton
+            @click="toogleWidth"
+            :icon="
+              !toogle
+                ? 'i-material-symbols:arrow-back-ios-new-rounded'
+                : 'i-material-symbols:arrow-forward-ios-rounded'
+            "
+            variant="ghost"
+          />
+          <UButton
+            v-if="!toogle"
+            class="flex-1 min-w-0"
+            to="/"
+            :ui="{
+              rounded: 'rounded-[5px]',
+              padding: { sm: 'p-[5px] px-[10px]' },
+            }"
+          >
+            <span class="truncate">Home</span>
+          </UButton>
+        </div>
       </div>
-      <NavItem v-if="!toogle" :navItems="links" />
+      <div
+        :class="['overflow-y-auto px-[10px]', toogle ? newHeight : newHeight]"
+      >
+        <NavItem v-if="!toogle" :navItems="links" />
+      </div>
     </nav>
+
+    <div ref="elFooter" class="dark:bg-[#121212]">
+      <div
+        class="p-[10px] flex items-center"
+        :class="[toogle ? 'flex-col' : 'flex-row']"
+      >
+        <div class="mr-auto flex-grow min-w-0">
+          <nuxt-link class="space-x-2 flex items-center" to="profile">
+            <UAvatar alt="Benjamin Canac" />
+            <span v-if="!toogle" class="truncate">Emmanel Apabiekn</span>
+          </nuxt-link>
+        </div>
+        <ClientOnly>
+          <UButton
+            :icon="
+              isDark ? 'i-heroicons-moon-20-solid' : 'i-heroicons-sun-20-solid'
+            "
+            variant="ghost"
+            aria-label="Theme"
+            @click="isDark = !isDark"
+          />
+          <template #fallback>
+            <div class="w-8 h-8" />
+          </template>
+        </ClientOnly>
+      </div>
+    </div>
   </div>
 </template>

@@ -1,13 +1,14 @@
 <template>
   <div>
-    {{ router }}
+    profile
+    paid or not
   </div>
 </template>
 
 <script lang="ts" setup>
- const router = useRouter();
+
 </script>
 
-<style>
+<style scoped>
 
 </style>

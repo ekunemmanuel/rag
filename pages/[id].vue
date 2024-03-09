@@ -1,67 +1,75 @@
 <template>
-  <div
-    class="grid"
-    :class="[isLargeScreen ? 'grid-cols-[1fr_450px]' : 'grid-cols-1']"
-  >
-    <div ref="sectionRef" class="duration-300 h-screen overflow-auto w-full">
-      <div class="space-y-2 bg-primary-950/50 min-h-screen p-2">
-        <div v-if="!pages" class="grid place-items-center h-screen">
-          <UIcon
-            name="i-eos-icons:three-dots-loading"
-            class="text-primary-900 size-[60px]"
-          />
-        </div>
-        <div
-          v-if="renderComponent"
-          v-for="page in pages"
-          :key="page"
-          class="bg-primary-950/50"
-        >
-          <div>
-            <VuePDF
-              text-layer
-              ref="vuePDFRef"
-              :pdf="pdf"
-              fit-parent
-              :page="page"
-            >
-              <div class="grid place-items-center h-screen">
-                <UIcon
-                  name="i-eos-icons:three-dots-loading"
-                  class="text-primary-900 size-[60px]"
-                />
-              </div>
-            </VuePDF>
+  <div>
+    <div
+      v-if="pages"
+      class="grid"
+      :class="[isLargeScreen ? 'grid-cols-[1fr_550px]' : '']"
+    >
+      <div ref="el" class="duration-300 h-screen overflow-y-auto">
+        <div class="space-y-2 bg-gray-700/30 dark:bg-gray-900/90  p-2">
+          <div
+            v-if="renderComponent"
+            v-for="page in pages"
+            :key="page"
+            class=""
+          >
+          <VuePDF
+                text-layer
+                ref="vuePDFRef"
+                :pdf="pdf"
+                fit-parent
+                :page="page"
+              >
+                <div class="grid place-items-center h-screen">
+                  <UIcon
+                    name="i-eos-icons:three-dots-loading"
+                    class="text-primary-400 text-[100px]"
+                  />
+                </div>
+              </VuePDF>
           </div>
         </div>
       </div>
-    </div>
-    <ChatSidebar v-if="isLargeScreen" />
+      <ChatSidebar v-if="isLargeScreen" />
 
-    <div v-if="!isLargeScreen">
-      <div class="absolute top-[calc(30px-15px)] z-10" :class="[isSmallScreen ? 'right-[calc(30px-15px)] ' :'right-[calc(30px-0px)]']">
-        <UButton
-          icon="i-ic:round-chat-bubble"
-          label="Chat"
-          @click="isOpen = true"
-        />
-      </div>
-
-      <USlideover v-model="isOpen" prevent-close>
+      <div v-else class="">
         <div
-          class="flex items-center justify-between p-2 border-l dark:border-white border-gray-900"
+          class="fixed top-[10px] z-10"
+          :class="[
+            isSmallScreen
+              ? 'right-[calc(30px-15px)] '
+              : 'right-[calc(30px-0px)]',
+          ]"
         >
           <UButton
-            color="gray"
-            variant="ghost"
-            icon="i-material-symbols:arrow-back-ios-new-rounded"
-            class="-my-1"
-            @click="isOpen = false"
+            icon="i-ic:round-chat-bubble"
+            label="Chat"
+            @click="isOpen = true"
           />
         </div>
 
-        <ChatSidebar class="h-[calc(100vh-56px)]" />
-      </USlideover>
+        <USlideover v-model="isOpen" prevent-close class="">
+          <div
+            class="flex items-center justify-between p-2 border-l dark:border-white border-gray-900 dark:bg-[#121212] bg-white"
+          >
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-material-symbols:arrow-back-ios-new-rounded"
+              class="-my-1"
+              @click="isOpen = false"
+            />
+          </div>
+
+          <ChatSidebar class="h-[calc(100vh-56px)]" />
+        </USlideover>
+      </div>
+    </div>
+    <div v-else class="grid place-items-center h-[calc(100vh-20px)]">
+      <UIcon
+        name="i-eos-icons:three-dots-loading"
+        class="text-primary-900 text-[100px]"
+      />
     </div>
   </div>
 </template>
@@ -69,20 +77,26 @@
 <script lang="ts" setup>
 import { VuePDF, usePDF } from "@tato30/vue-pdf";
 import "@tato30/vue-pdf/style.css";
+
 const isLargeScreen = useLargeScreen();
-const isMedScreen = useMediumScreen();
 const isSmallScreen = useSmallScreen();
 
 const route = useRouter();
 const isOpen = ref(false);
 const { getBookDetail } = useBookDetails();
-const reloadKey = ref(0);
+// const reloadKey = ref(0);
 
 const id = route.currentRoute.value.params.id;
 
 const book = await getBookDetail(id as string);
 
 const renderComponent = ref(true);
+
+const toogleValue = useToogle();
+
+watch(toogleValue, (newVal) => {
+  reloadPDF();
+});
 
 const forceRender = async () => {
   // Here, we'll remove MyComponent
@@ -98,29 +112,17 @@ const forceRender = async () => {
 function reloadPDF() {
   forceRender();
   // reloadKey.value++;
+
+  console.log(renderComponent.value);
 }
 
-const sectionRef = ref(null);
-let resizeObserver: ResizeObserver | null = null;
+const el = ref(null);
 
-onMounted(() => {
-  resizeObserver = new ResizeObserver((entries) => {
-    for (let entry of entries) {
-      if (entry.target === sectionRef.value) {
-        reloadPDF();
-      }
-    }
-  });
-
-  if (sectionRef.value) {
-    resizeObserver.observe(sectionRef.value);
-  }
-});
-
-onUnmounted(() => {
-  if (resizeObserver && sectionRef.value) {
-    resizeObserver.unobserve(sectionRef.value);
-  }
+useResizeObserver(el, (entries) => {
+  // const entry = entries[0];
+  // const { width, height } = entry.contentRect;
+  // text.value = `width: ${width}, height: ${height}`;
+  reloadPDF();
 });
 
 useHead({

@@ -19,7 +19,8 @@
         class="duration-200 hover:dark:!bg-primary-950 hover:!bg-primary-50"
         :ui="{ padding: { sm: 'p-[10px]' } }"
       >
-        <span class="truncate">{{ item.label }}</span>
+        <span class="truncate mr-auto">{{ item.label }}</span>
+        <MoreOptions :book="item" />
       </UButton>
       <UButton
         v-else
@@ -43,40 +44,16 @@
 
         <span class="truncate"> {{ item.label }}</span>
 
-
         <template #trailing>
           <UIcon
             name="i-heroicons-chevron-right-20-solid"
             class="size-4 ms-auto transform transition-transform duration-200"
             :class="[open && 'rotate-90']"
           />
-          <UPopover
-            :popper="{
-              arrow: true,
-              placement: 'right',
-              offsetDistance: 15,
-            }"
-          >
-            <UTooltip
-              text="More"
-              :popper="{
-                arrow: true,
-                placement: 'right',
-                offsetDistance: 15,
-              }"
-            >
-              <UButton
-                color="gray"
-                variant="ghost"
-                icon="i-ci:more-horizontal"
-              />
-            </UTooltip>
+        <MoreOptions :book="item" />
 
-            <template #panel>
-              <div class="p-8">more options</div>
-            </template>
-          </UPopover>
         </template>
+        
       </UButton>
     </template>
     <template #item="{ item, index, open, close }">

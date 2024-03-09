@@ -156,6 +156,7 @@ export const useBookDetails = () => {
         description: "There was an error getting the book",
         title: "No Book",
       });
+      navigateTo("/")
       return {} as BookDetails;
     }
 
