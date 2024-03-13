@@ -1,6 +1,5 @@
-<script setup lang="ts">
-import Loading from './Loading.vue';
 
+<script setup lang="ts">
 const { getBookDetails } = useBookDetails();
 const colorMode = useColorMode();
 
@@ -14,7 +13,6 @@ const isDark = computed({
 });
 
 const links = useLinks();
-const isSmallScreen = useSmallScreen();
 
 const data = await getBookDetails();
 links.value = data;
@@ -80,7 +78,24 @@ const newHeight = computed(() => {
   >
     <nav class="mb-auto">
       <div ref="elHeader">
-        <div class="p-[10px] flex justify-between gap-[10px] w-full">
+        <div
+          class="p-[10px] flex justify-between gap-[10px] w-full"
+          :class="[toogle ? 'flex-col' : 'flex-row']"
+        >
+          <UButton
+            v-if="!toogle"
+            class="flex-1 min-w-0"
+            to="/"
+            :ui="{
+              rounded: 'rounded-[5px]',
+              padding: { sm: 'px-[10px]' },
+            }"
+          >
+            <span class="truncate">Home</span>
+          </UButton>
+
+          <UButton v-else to="/" icon="material-symbols:home-rounded" />
+
           <UButton
             @click="toogleWidth"
             :icon="
@@ -90,23 +105,13 @@ const newHeight = computed(() => {
             "
             variant="ghost"
           />
-          <UButton
-            v-if="!toogle"
-            class="flex-1 min-w-0"
-            to="/"
-            :ui="{
-              rounded: 'rounded-[5px]',
-              padding: { sm: 'p-[5px] px-[10px]' },
-            }"
-          >
-            <span class="truncate">Home</span>
-          </UButton>
         </div>
       </div>
+
       <div
         :class="[
           'overflow-y-auto px-[10px] py-[10px]',
-          !toogle ? 'h-[calc(100vh-104px)]' : 'h-[calc(100vh-136px)]',
+          !toogle ? 'h-[calc(100vh-104px)]' : 'h-[calc(100vh-179px)]',
         ]"
       >
         <NavItem v-if="!toogle" :navItems="links" />
@@ -121,7 +126,7 @@ const newHeight = computed(() => {
         <div class="mr-auto flex-grow min-w-0">
           <nuxt-link class="space-x-2 flex items-center" to="profile">
             <UAvatar alt="Benjamin Canac" />
-            <span v-if="!toogle" class="truncate">Emmanel Apabiekn</span>
+            <span v-if="!toogle" class="truncate">Emmanuel Apabiekn</span>
           </nuxt-link>
         </div>
         <ClientOnly>

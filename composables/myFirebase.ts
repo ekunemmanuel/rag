@@ -61,12 +61,6 @@ export const useMyFirebase = () => {
     try {
       await promise.value;
       if (pending.value == false && error.value == undefined) {
-        data.value.sort((a, b) => {
-          let dateA = (a.createdAt as Timestamp).toDate();
-          let dateB = (b.createdAt as Timestamp).toDate();
-
-          return dateB!.getTime() - dateA!.getTime();
-        });
         return data.value as T;
       }
       return [] as T;

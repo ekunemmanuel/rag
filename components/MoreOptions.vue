@@ -22,14 +22,6 @@
 
     <template #panel>
       <div class="p-2 flex flex-col space-y-2">
-        <!-- <UButton
-          color="gray"
-          variant="ghost"
-          class="dark:bg-gray-900 bg-gray-300 hover:!text-gray-400"
-          icon="i-material-symbols:edit-rounded"
-          label="Rename"
-          @click.prevent="renameOption"
-        /> -->
         <UButton
           color="gray"
           variant="ghost"
@@ -41,6 +33,14 @@
       </div>
     </template>
   </UPopover>
+
+  <!-- <UButton
+    color="gray"
+    variant="ghost"
+    class="dark:bg-red-900 bg-red-300 hover:!text-red-400"
+    icon="i-material-symbols:delete-outline-rounded"
+    @click.prevent="deleteOption"
+  /> -->
 
   <UModal v-model="isOpen" prevent-close :ui="{}">
     <div class="flex justify-center items-center flex-wrap gap-[10px] p-4">
@@ -63,24 +63,6 @@ const book = props.book;
 const popover = ref(false);
 async function deleteOption() {
   popover.value = false;
-
-  // console.log(Array.isArray(props.book) ? props.book[0].id : props.book.id);
-  // try {
-  //   isOpen.value = true;
-  //   // if (props.book.sourceId) {
-  //     await deleteFromChatPdfApi('src_EGJSqIZOX2a4izWDxG0gV');
-  //   // }
-  //   // if (props.book.chatId) {
-  //   //   await deleteChat(props.book.chatId!);
-  //   // }
-  //   // await deleteBookDetails(props.book.id);
-  //   console.log("deleteOption");
-  //   isOpen.value = false;
-  // } catch (error) {
-  //   isOpen.value = false;
-  //   console.log(error);
-  // }
-
   // The block is to delete all the files in a folder
   // if this is a folder
   if (book.collections) {
@@ -135,9 +117,10 @@ async function deleteBookAndRelatedData(
   chatId?: string,
   sourceId?: string
 ) {
-  if (!sourceId) return;
-  await deleteFromChatPdfApi(sourceId);
-  // console.log(`Single File sourceID `, sourceId);
+  if (sourceId) {
+    await deleteFromChatPdfApi(sourceId);
+    // console.log(`Single File sourceID `, sourceId);
+  }
 
   if (!chatId) return;
   await deleteFileInStorage(alias);

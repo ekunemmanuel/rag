@@ -71,7 +71,7 @@
             `${files.length} ${files.length === 1 ? "file" : "files"}`
           }}</b>
         </p>
-        <li v-for="file of incomingBrowserFiles" :key="file.name">
+        <li v-for="file of files" :key="file.name">
           {{ file.name }}
         </li>
       </template>
@@ -93,6 +93,7 @@
 
 <script lang="ts" setup>
 const dropZoneRef = ref<HTMLDivElement>();
+const { notification } = useNotification();
 const {
   clearList,
   collectionName,
@@ -104,16 +105,33 @@ const {
   sending,
 } = useBookDetails();
 
-// const sending = ref(false);
-function onDrop() {
-  isOpen.value = true;
-  files.value = incomingDragFiles.value;
-}
-
 const { files: incomingDragFiles } = useDropZone(dropZoneRef, {
   onDrop,
   dataTypes: ["application/pdf"],
 });
+
+// const sending = ref(false);
+function onDrop() {
+  isOpen.value = true;
+
+  files.value = incomingDragFiles.value
+    ? [incomingDragFiles.value[0]].filter((file) => {
+        if (file.size > 6 * 1024 * 1024) {
+          notification({
+            title: "File large",
+            description: "File is Larger than 3MB",
+          });
+          return false;
+        }
+        return true;
+      })
+    : [];
+  notification({
+    id: "large-file",
+    title: "Large File",
+    description: "File is Larger than 6MB",
+  });
+}
 
 const {
   files: incomingBrowserFiles,
@@ -122,11 +140,25 @@ const {
   onChange,
 } = useFileDialog({
   accept: "application/pdf",
+  multiple: false,
 });
 
 onChange(() => {
   isOpen.value = true;
-  files.value = incomingBrowserFiles.value;
+
+  files.value = incomingBrowserFiles.value
+    ? [incomingBrowserFiles.value[0]].filter((file) => {
+        if (file.size > 6 * 1024 * 1024) {
+          notification({
+            id: "large-file",
+            title: "Large File",
+            description: "File is Larger than 6MB",
+          });
+          return false;
+        }
+        return true;
+      })
+    : [];
 });
 
 function clean() {

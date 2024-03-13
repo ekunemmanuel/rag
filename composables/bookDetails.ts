@@ -2,7 +2,8 @@ import type { BookDetails } from "~/types";
 import { v4 as uuidv4 } from "uuid";
 export const useBookDetails = () => {
   const { notification } = useNotification();
-  const { addData, uploadFile, getAllData, deleteData, deleteFile } = useMyFirebase();
+  const { addData, uploadFile, getAllData, deleteData, deleteFile } =
+    useMyFirebase();
   const files = ref<File[] | FileList | null>();
   const isOpen = ref(false);
   const collectionName = ref("New Folder");
@@ -212,6 +213,7 @@ export const useBookDetails = () => {
 
   async function getBookDetails() {
     const data = await getAllData<BookDetails[]>(filePath);
+
     if (!data) return [];
     data.sort((a, b) => {
       let dateA = a.createdAt!.toDate();
@@ -284,12 +286,11 @@ export const useBookDetails = () => {
     navigateTo("/");
   }
 
-  async function deleteFileInStorage(alias:string) {
+  async function deleteFileInStorage(alias: string) {
     try {
       await deleteFile(alias, filePath);
     } catch (error) {
       console.log(error);
-      
     }
   }
 
