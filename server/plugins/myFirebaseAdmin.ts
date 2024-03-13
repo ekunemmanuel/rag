@@ -8,7 +8,7 @@ export default defineNitroPlugin((nitroApp) => {
       credential: cert({
         projectId,
         clientEmail,
-        privateKey,
+        privateKey: privateKey.replace(/\\n/g, "\n"),
       }),
     });
   }
