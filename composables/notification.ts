@@ -1,6 +1,9 @@
+import Loading from "~/components/Loading.vue";
+
 export const useNotification = () => {
   const toast = useToast();
-  return function notification({
+  const modal = useModal();
+  function notification({
     id,
     title,
     description,
@@ -14,5 +17,30 @@ export const useNotification = () => {
       title,
       description,
     });
+  }
+  function showModal() {
+    modal.open(Loading);
+    notification({
+      id: "sourceId",
+      title: "Setting up",
+      description: "Preparing The second brain",
+    });
+  }
+  function hideModal() {
+    modal.close();
+  }
+  function loadingNextPage() {
+    modal.open(Loading);
+  }
+
+  function hiddingNextPage() {
+    modal.close();
+  }
+  return {
+    notification,
+    showModal,
+    hideModal,
+    loadingNextPage,
+    hiddingNextPage,
   };
 };

@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import Loading from './Loading.vue';
+
 const { getBookDetails } = useBookDetails();
 const colorMode = useColorMode();
+
 const isDark = computed({
   get() {
     return colorMode.value === "dark";
@@ -54,7 +57,7 @@ const toogle = ref(toogleValue.value);
 
 function toogleWidth() {
   toogle.value = !toogle.value;
-  toogleValue.value = toogle.value
+  toogleValue.value = toogle.value;
 }
 
 watch(toogleValue, (newVal) => {
@@ -101,7 +104,10 @@ const newHeight = computed(() => {
         </div>
       </div>
       <div
-        :class="['overflow-y-auto px-[10px]', toogle ? newHeight : newHeight]"
+        :class="[
+          'overflow-y-auto px-[10px] py-[10px]',
+          !toogle ? 'h-[calc(100vh-104px)]' : 'h-[calc(100vh-136px)]',
+        ]"
       >
         <NavItem v-if="!toogle" :navItems="links" />
       </div>

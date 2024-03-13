@@ -14,7 +14,6 @@
         variant="ghost"
         color="gray"
         :to="`${item.id}`"
-        exactActiveClass="bg-primary-900 dark:bg-primary-400 ring-"
         activeClass="text-primary-600 dark:text-primary-400 ring-2 ring-primary-600 dark:ring-primary-400"
         class="duration-200 hover:dark:!bg-primary-950 hover:!bg-primary-50"
         :ui="{ padding: { sm: 'p-[10px]' } }"
@@ -27,7 +26,6 @@
         variant="ghost"
         color="gray"
         class="hover:dark:!bg-primary-950 hover:!bg-primary-50"
-        exactActiveClass="bg-primary-900 dark:bg-primary-400 ring-"
         activeClass="text-primary-600 dark:text-primary-400 ring-2 ring-primary-600 dark:ring-primary-400"
         :ui="{ rounded: 'rounded-[10px]', padding: { sm: 'p-[5px]' } }"
       >

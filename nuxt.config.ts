@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  ssr:false,
+  ssr: false,
   modules: ["@nuxt/ui", "@vueuse/nuxt", "@pinia/nuxt", "nuxt-vuefire"],
   vuefire: {
     auth: true,
@@ -13,8 +13,30 @@ export default defineNuxtConfig({
       // there could be other properties depending on the project
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     },
+    // admin: {
+    //   options: {
+    //     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    //     projectId: process.env.FIREBASE_PROJECT_ID,
+    //     serviceAccountId: process.env.FIREBASE_SERVICE_ACCOUNT_ID,
+    //     databaseAuthVariableOverride: {},
+    //     databaseURL: "",
+    //   },
+    // },
   },
-  imports:{
+  imports: {
     // dirs: ['types']
-  }
+  },
+  runtimeConfig: {
+    chatApiUrl: process.env.CHAT_API_URL,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    chatApiKey: process.env.CHAT_API_KEY,
+    nitro: {},
+    vuefire: {
+      // admin: {
+      //   options: {},
+      // },
+    },
+  },
 });

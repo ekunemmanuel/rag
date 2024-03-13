@@ -1,8 +1,8 @@
 import type { BookDetails } from "~/types";
 import { v4 as uuidv4 } from "uuid";
 export const useBookDetails = () => {
-  const notification = useNotification();
-  const { addData, uploadFile, getData } = useMyFirebase();
+  const { notification } = useNotification();
+  const { addData, uploadFile, getAllData, deleteData, deleteFile } = useMyFirebase();
   const files = ref<File[] | FileList | null>();
   const isOpen = ref(false);
   const collectionName = ref("New Folder");
@@ -20,6 +20,7 @@ export const useBookDetails = () => {
     href: "",
     alias: "",
   });
+  const links = useLinks();
 
   const isThereFile = computed(() => {
     return files.value && files.value.length > 0;
@@ -53,14 +54,16 @@ export const useBookDetails = () => {
       uploadSingleFile(fileList[0]);
     }
   }
-  const bookPath = "userId/library/books";
+  const filePath = "userId/library/files";
+  const chatPath = "userId/library/chats";
 
   async function uploadSingleFile(file: File) {
     const id = uuidv4();
+    const chatId = uuidv4();
     const alias = uuidv4();
     if (!file) return;
     sending.value = true;
-    uploadFile(file, alias)
+    uploadFile(file, alias, filePath)
       .then((url) => {
         if (!url) {
           notification({
@@ -74,10 +77,20 @@ export const useBookDetails = () => {
         singleFile.value.label = file.name;
         singleFile.value.id = id;
         singleFile.value.alias = alias;
+        singleFile.value.chatId = chatId;
+        addData(
+          chatId,
+          {
+            messages: [],
+          },
+          chatPath
+        );
 
-        addData<BookDetails>(id, singleFile.value);
+        addData<BookDetails>(id, singleFile.value, filePath);
       })
-      .finally(() => {
+      .then(async () => {
+        links.value = await getBookDetails();
+
         clearList();
       });
   }
@@ -92,8 +105,9 @@ export const useBookDetails = () => {
       if (!file) return Promise.resolve();
       const bookId = uuidv4();
       const alias = uuidv4();
+      const chatId = uuidv4();
 
-      return uploadFile(file, alias).then((url) => {
+      return uploadFile(file, alias, filePath).then((url) => {
         if (!url) {
           notification({
             id: "no_url",
@@ -102,12 +116,23 @@ export const useBookDetails = () => {
           });
           return;
         }
-        const data = {
+        const data: BookDetails = {
           id: bookId,
           label: file.name,
           alias,
           href: url,
+          chatId,
         };
+
+        addData(
+          chatId,
+          {
+            messages: [],
+          },
+          chatPath
+        );
+        uploadToChatPdfApi("userId", bookId);
+
         multipleFiles.value.collections!.push(data);
       });
     });
@@ -115,16 +140,18 @@ export const useBookDetails = () => {
     await Promise.all(uploadPromises);
 
     const id = uuidv4();
-    multipleFiles.value.id = uuidv4();
+    multipleFiles.value.id = id;
     multipleFiles.value.label = collectionNameValue;
     multipleFiles.value.alias = collectionNameValue;
-    addData<BookDetails>(id, multipleFiles.value).finally(() => {
+    addData<BookDetails>(id, multipleFiles.value, filePath).finally(() => {
       clearList();
     });
   }
 
   async function getBookDetail(id: string) {
-    const data = await getData<BookDetails[]>();
+    const data = await getAllData<BookDetails[]>(filePath);
+
+    // await updateData(filePath, id, { label: "Research" });
 
     if (!data) {
       notification({
@@ -156,7 +183,7 @@ export const useBookDetails = () => {
         description: "There was an error getting the book",
         title: "No Book",
       });
-      navigateTo("/")
+      navigateTo("/");
       return {} as BookDetails;
     }
 
@@ -184,7 +211,7 @@ export const useBookDetails = () => {
   }
 
   async function getBookDetails() {
-    const data = await getData<BookDetails[]>();
+    const data = await getAllData<BookDetails[]>(filePath);
     if (!data) return [];
     data.sort((a, b) => {
       let dateA = a.createdAt!.toDate();
@@ -194,6 +221,76 @@ export const useBookDetails = () => {
     });
 
     return data;
+  }
+
+  async function uploadToChatPdfApi(userId: string, fileId: string) {
+    try {
+      await $fetch<{
+        status: number;
+        message: string;
+        data: BookDetails;
+      }>("/api/pdfApi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: {
+          fileId,
+          userId,
+        },
+        retry: 3,
+      });
+      await refreshNuxtData();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function deleteFromChatPdfApi(sourceId: string) {
+    try {
+      const data = await $fetch("/api/pdfApi", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: {
+          sourceId,
+        },
+      });
+      // console.log(data);
+
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function deleteBookDetails(id: string) {
+    const data = await deleteData(filePath, id);
+
+    // console.log(data);
+
+    if (!data) {
+      notification({
+        id: "no_data",
+        description: "There was an error deleting the data",
+        title: "No Data",
+      });
+      return;
+    }
+
+    links.value = await getBookDetails();
+    navigateTo("/");
+  }
+
+  async function deleteFileInStorage(alias:string) {
+    try {
+      await deleteFile(alias, filePath);
+    } catch (error) {
+      console.log(error);
+      
+    }
   }
 
   return {
@@ -206,8 +303,12 @@ export const useBookDetails = () => {
     isThereFile,
     sending,
     upload,
+    deleteFileInStorage,
     clearList,
     getBookDetails,
     getBookDetail,
+    uploadToChatPdfApi,
+    deleteFromChatPdfApi,
+    deleteBookDetails,
   };
 };

@@ -1,4 +1,4 @@
-import type { BookDetails } from "~/types";
+import type { BookDetails, Message } from "~/types";
 
 export const useLinks = () => useState<BookDetails[]>("links", () => []);
 
@@ -28,4 +28,9 @@ export const useMediumScreen = () =>
 export const useSmallScreen = () =>
   useState<boolean>("smallScreen", () => {
     return false;
+  });
+
+export const useMessages = () =>
+  useState<Message[]>("smallScreen", () => {
+    return [];
   });

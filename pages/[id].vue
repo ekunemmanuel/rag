@@ -6,31 +6,37 @@
       :class="[isLargeScreen ? 'grid-cols-[1fr_550px]' : '']"
     >
       <div ref="el" class="duration-300 h-screen overflow-y-auto">
-        <div class="space-y-2 bg-gray-700/30 dark:bg-gray-900/90  p-2">
+        <div class="space-y-2 bg-gray-700/30 dark:bg-gray-900/90 p-2">
           <div
             v-if="renderComponent"
             v-for="page in pages"
             :key="page"
             class=""
           >
-          <VuePDF
-                text-layer
-                ref="vuePDFRef"
-                :pdf="pdf"
-                fit-parent
-                :page="page"
-              >
-                <div class="grid place-items-center h-screen">
-                  <UIcon
-                    name="i-eos-icons:three-dots-loading"
-                    class="text-primary-400 text-[100px]"
-                  />
-                </div>
-              </VuePDF>
+            <VuePDF
+              text-layer
+              ref="vuePDFRef"
+              :pdf="pdf"
+              fit-parent
+              :page="page"
+            >
+              <div class="grid place-items-center h-screen">
+                <UIcon
+                  name="i-eos-icons:three-dots-loading"
+                  class="text-primary-400 text-[100px]"
+                />
+              </div>
+            </VuePDF>
           </div>
         </div>
       </div>
-      <ChatSidebar v-if="isLargeScreen" />
+      <div v-if="isLargeScreen">
+        <ChatSidebar
+          v-if="!loadChat"
+          :chatId="book.chatId!"
+          :sourceId="book.sourceId!"
+        />
+      </div>
 
       <div v-else class="">
         <div
@@ -61,7 +67,12 @@
             />
           </div>
 
-          <ChatSidebar class="h-[calc(100vh-56px)]" />
+          <ChatSidebar
+            v-if="!loadChat"
+            :chatId="book.chatId!"
+            :sourceId="book.sourceId!"
+            class="h-[calc(100vh-56px)]"
+          />
         </USlideover>
       </div>
     </div>
@@ -70,8 +81,15 @@
         name="i-eos-icons:three-dots-loading"
         class="text-primary-900 text-[100px]"
       />
-    </div>
+    </div>  <div>
+    <UModal v-model="openErrorPage" fullscreen>
+      <div class="min-h-screen grid place-items-center">
+        <UButton label="Reload" @click="retry" />
+      </div>
+    </UModal>
   </div>
+  </div>
+
 </template>
 
 <script lang="ts" setup>
@@ -80,21 +98,24 @@ import "@tato30/vue-pdf/style.css";
 
 const isLargeScreen = useLargeScreen();
 const isSmallScreen = useSmallScreen();
+const book = useBookDetail();
+const { hiddingNextPage } = useNotification();
 
-const route = useRouter();
 const isOpen = ref(false);
-const { getBookDetail } = useBookDetails();
-// const reloadKey = ref(0);
+hiddingNextPage();
+const loadChat = computed(() => {
+  console.log(book.value.sourceId, book.value.chatId);
+  return false;
+});
 
-const id = route.currentRoute.value.params.id;
-
-const book = await getBookDetail(id as string);
+const pageKey = ref(true);
 
 const renderComponent = ref(true);
+const loaded = ref(false);
 
 const toogleValue = useToogle();
 
-watch(toogleValue, (newVal) => {
+watch(toogleValue, () => {
   reloadPDF();
 });
 
@@ -112,21 +133,16 @@ const forceRender = async () => {
 function reloadPDF() {
   forceRender();
   // reloadKey.value++;
-
-  console.log(renderComponent.value);
 }
 
 const el = ref(null);
 
 useResizeObserver(el, (entries) => {
-  // const entry = entries[0];
-  // const { width, height } = entry.contentRect;
-  // text.value = `width: ${width}, height: ${height}`;
   reloadPDF();
 });
 
 useHead({
-  title: book.label,
+  title: book.value.label,
   meta: [
     {
       name: "description",
@@ -137,7 +153,7 @@ useHead({
 
 // const books = useLinks()
 
-// const notification = useNotification()
+// const {notification} = useNotification()
 // const book = await getBookDetail(id as string)
 
 // async function getBookDetail(id: string) {
@@ -178,7 +194,35 @@ useHead({
 //     return foundBook;
 //   }
 
-const src = `${book.href}`;
+const src = `${book.value.href}`;
 
-const { pdf, pages } = usePDF(src);
+const openErrorPage = ref(false);
+
+const { pdf, pages } = usePDF(src, {
+  onProgress: (e) => {
+    loaded.value = e.loaded === e.total;
+  },
+  async onError(e) {
+    // console.log(e);
+    openErrorPage.value = true;
+  },
+});
+
+async function retry() {
+  // Here, we'll remove MyComponent
+  pageKey.value = false;
+
+  // Then, wait for the change to get flushed to the DOM
+  await nextTick();
+
+  // Add MyComponent back in
+  pageKey.value = true;
+  openErrorPage.value = false;
+  window.location.reload()
+  // await refreshNuxtData();
+}
+
+definePageMeta({
+  middleware: ["source-id"],
+});
 </script>

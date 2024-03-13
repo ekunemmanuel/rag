@@ -5,6 +5,7 @@
       placement: 'right',
       offsetDistance: 15,
     }"
+    v-model:open="popover"
   >
     <UTooltip
       text="More"
@@ -21,14 +22,14 @@
 
     <template #panel>
       <div class="p-2 flex flex-col space-y-2">
-        <UButton
+        <!-- <UButton
           color="gray"
           variant="ghost"
           class="dark:bg-gray-900 bg-gray-300 hover:!text-gray-400"
           icon="i-material-symbols:edit-rounded"
           label="Rename"
           @click.prevent="renameOption"
-        />
+        /> -->
         <UButton
           color="gray"
           variant="ghost"
@@ -40,18 +41,113 @@
       </div>
     </template>
   </UPopover>
+
+  <UModal v-model="isOpen" prevent-close :ui="{}">
+    <div class="flex justify-center items-center flex-wrap gap-[10px] p-4">
+      <span> Deleting your file </span>
+      <UIcon name="line-md:uploading-loop" class="text-[40px]" />
+    </div>
+  </UModal>
 </template>
 
 <script lang="ts" setup>
-import type { BookDetails } from '~/types';
-
+import type { BookDetails } from "~/types";
+const { deleteBookDetails, deleteFromChatPdfApi, deleteFileInStorage } =
+  useBookDetails();
+const { deleteChat } = useChats();
 const props = defineProps<{
-  book: BookDetails | BookDetails[]
+  book: BookDetails;
 }>();
-function deleteOption() {
-  console.log(Array.isArray(props.book) ? props.book[0].id : props.book.id);
+const isOpen = ref(false);
+const book = props.book;
+const popover = ref(false);
+async function deleteOption() {
+  popover.value = false;
 
-  console.log("deleteOption");
+  // console.log(Array.isArray(props.book) ? props.book[0].id : props.book.id);
+  // try {
+  //   isOpen.value = true;
+  //   // if (props.book.sourceId) {
+  //     await deleteFromChatPdfApi('src_EGJSqIZOX2a4izWDxG0gV');
+  //   // }
+  //   // if (props.book.chatId) {
+  //   //   await deleteChat(props.book.chatId!);
+  //   // }
+  //   // await deleteBookDetails(props.book.id);
+  //   console.log("deleteOption");
+  //   isOpen.value = false;
+  // } catch (error) {
+  //   isOpen.value = false;
+  //   console.log(error);
+  // }
+
+  // The block is to delete all the files in a folder
+  // if this is a folder
+  if (book.collections) {
+    // console.log(`Folder`, book.id);
+
+    isOpen.value = true; // Open the modal
+
+    Promise.all(
+      book.collections.map(async (file) => {
+        try {
+          // file in folder
+          await deleteBookAndRelatedData(
+            book.id,
+            file.alias,
+            file.chatId,
+            file.sourceId
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      })
+    ).finally(() => {
+      isOpen.value = false; // Close the modal when all operations are complete
+    });
+  }
+  // This block is to delete a single file
+  // if this is a file
+  else {
+    // console.log(`Single File`, book);
+
+    try {
+      isOpen.value = true;
+      await deleteBookAndRelatedData(
+        book.id,
+        book.alias,
+        book.chatId,
+        book.sourceId
+      );
+      isOpen.value = false;
+    } catch (error) {
+      console.log(error);
+      isOpen.value = false;
+    }
+  }
+}
+
+// TypeScript
+
+async function deleteBookAndRelatedData(
+  id: string,
+  alias: string,
+  chatId?: string,
+  sourceId?: string
+) {
+  if (!sourceId) return;
+  await deleteFromChatPdfApi(sourceId);
+  // console.log(`Single File sourceID `, sourceId);
+
+  if (!chatId) return;
+  await deleteFileInStorage(alias);
+  // console.log(`Single File in storage`, alias);
+
+  await deleteChat(chatId);
+  // console.log(`Single File chatID`, chatId);
+
+  await deleteBookDetails(id);
+  // console.log(`Single File ID`, id);
 }
 
 function renameOption() {
