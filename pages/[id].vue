@@ -71,7 +71,7 @@
             v-if="!loadChat"
             :chatId="book.chatId!"
             :sourceId="book.sourceId!"
-            class="h-[calc(100vh-56px)]"
+            class="h-[calc(100vh-40px)]"
           />
         </USlideover>
       </div>
